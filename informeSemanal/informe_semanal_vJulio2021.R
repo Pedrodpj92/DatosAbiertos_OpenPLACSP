@@ -66,7 +66,7 @@ df_contratos <- df_contratos[!(df_contratos$Sistema_de_contratación %in% c("Est
                                                                            "Establecimiento del Sistema Dinámico de Adquisición")),]
 
 df_contratos <- df_contratos[!is.na(df_contratos$`Fecha_del_acuerdo_licitación/lote`),]
-df_contratos <-df_contratos[df_contratos$`Fecha_del_acuerdo_licitación/lote`>=as.POSIXct("2021-07-01"),]
+df_contratos <-df_contratos[df_contratos$`Fecha_del_acuerdo_licitación/lote`>=as.POSIXct("2021-08-30"),]
 
 df_contratos <- df_contratos[!is.na(df_contratos$`Importe_adjudicación_sin_impuestos_licitación/lote`),]
 
@@ -86,8 +86,8 @@ agg_pie1 <- cbind(agg_sum_pie1, count = agg_count_pie1[,2])
 agg_pie1$sum_ratio <- 100*(agg_pie1$sum/sum(agg_pie1$sum))
 agg_pie1$count_ratio <- 100*(agg_pie1$count/sum(agg_pie1$count))
 
-# write.table(x = agg_pie1,file = "./informeSemanal/outputs_varios/resumen_tiposContratos.csv",
-#             sep = ";",row.names = FALSE,col.names = TRUE,dec = ",")
+write.table(x = agg_pie1,file = "./informeSemanal/outputs_varios/resumen_tiposContratos.csv",
+            sep = ";",row.names = FALSE,col.names = TRUE,dec = ",")
 
 
 
@@ -106,6 +106,9 @@ dt_CPV$CPV_division <- substring(dt_CPV$CPV, first = 1, last = 8)
 colnames(conteo_CPV)[3] <- c("CPV_division")
 
 conteo_CPV <- merge(x = conteo_CPV, y = dt_CPV, by = "CPV_division")
+output_conteo_CPV <- conteo_CPV[,c(3,4,5,6)]
+write.table(x = output_conteo_CPV,file = "./informeSemanal/outputs_varios/frecuencias_CPV_contratos.csv",
+            sep = ";",row.names = FALSE,col.names = TRUE,dec = ",")
 
 
 #importe adjudicación total sin impuestos
@@ -117,6 +120,7 @@ print(summary(as.factor(df_contratos$Tramitación)))
 #cantidad de OC diferentes
 print("Número de Órganos de Contratación distintos implicados: ")
 print(length(unique(df_contratos$NIF_OC)))
+print("Número de adjudicatarios distintos implicados (según identificador: ")
 print(length(unique(df_contratos$`Identificador_Adjudicatario_de_la_licitación/lote`)))
 # si NA, se considera no PyME para facilitar calcular cuántas PyMES hay de seguro
 df_contratos$`El_adjudicatario_es_o_no_PYME_de_la_licitación/lote`[is.na(df_contratos$`El_adjudicatario_es_o_no_PYME_de_la_licitación/lote`)] <- FALSE
@@ -129,7 +133,7 @@ agg_esPyME <- aggregate(esPyME ~ NIF, df_pymes, FUN=function(x) length(unique(x)
 
 # % mínimo de PyMES
 print("porcentaje mínimo de PyMES: ")
-print(nrow(agg_esPyME)/length(unique(df_contratos$`Identificador_Adjudicatario_de_la_licitación/lote`)))
+print(paste0(100*nrow(agg_esPyME)/length(unique(df_contratos$`Identificador_Adjudicatario_de_la_licitación/lote`)),"%"))
 
 
 
@@ -137,7 +141,7 @@ print(nrow(agg_esPyME)/length(unique(df_contratos$`Identificador_Adjudicatario_d
 #######Parte 2) Licitaciones Abiertas y Desiertas#######
 df_licitaciones <- dt_perfil_licitaciones[,-c(17,18,19,23,24,25,26)]
 df_licitaciones <- df_licitaciones[df_licitaciones$Estado=="En plazo",]
-df_licitaciones <-df_licitaciones[df_licitaciones$Primera_publicación>=as.POSIXct("2021-07-01"),]
+df_licitaciones <-df_licitaciones[df_licitaciones$Primera_publicación>=as.POSIXct("2021-08-30"),]
 # df_licitaciones <- df_licitaciones[!(df_licitaciones$Sistema_de_contratación %in% c("Establecimiento del Acuerdo Marco",
 #                                                                                     "Establecimiento del Sistema Dinámico de Adquisición")),]
 # desglose por tipo
@@ -151,8 +155,8 @@ agg_pie2 <- cbind(agg_sum_pie2, count = agg_count_pie2[,2])
 agg_pie2$sum_ratio <- 100*(agg_pie2$sum/sum(agg_pie2$sum))
 agg_pie2$count_ratio <- 100*(agg_pie2$count/sum(agg_pie2$count))
 
-# write.table(x = agg_pie2,file = "./informeSemanal/outputs_varios/resumen_nuevasLicitaciones.csv",
-#             sep = ";",row.names = FALSE,col.names = TRUE,dec = ",")
+write.table(x = agg_pie2,file = "./informeSemanal/outputs_varios/resumen_nuevasLicitaciones.csv",
+            sep = ";",row.names = FALSE,col.names = TRUE,dec = ",")
 
 # df_licitaciones <- df_licitaciones[!is.na(df_licitaciones$Presupuesto_base_sin_impuestos),]
 print(nrow(df_licitaciones))
@@ -165,6 +169,7 @@ df_desiertas <- dt_perfil_resultados[dt_perfil_resultados$`Resultado_licitación
 df_desiertas <- df_desiertas[,-c(2,3,4,7,8,19,21)]
 df_desiertas <- merge(x = df_p_lic, y = df_desiertas, by = "Identificador")
 
+print(nrow(df_desiertas))
 print(nrow(df_desiertas[df_desiertas$`Número_de_ofertas_recibidas_por_licitación/lote`==0,]))
 
 
@@ -178,7 +183,9 @@ conteo_desierto_CPV$Var1_aumentado <- paste0(conteo_desierto_CPV$Var1_aumentado,
 colnames(conteo_desierto_CPV)[3] <- c("CPV_division")
 
 conteo_desierto_CPV <- merge(x = conteo_desierto_CPV, y = dt_CPV, by = "CPV_division")
-
+conteo_desierto_CPV <- conteo_desierto_CPV[,c(3,4,5,6)]
+write.table(x = conteo_desierto_CPV,file = "./informeSemanal/outputs_varios/frecuencias_CPV_licitaciones_desiertas.csv",
+            sep = ";",row.names = FALSE,col.names = TRUE,dec = ",")
 
 
 
