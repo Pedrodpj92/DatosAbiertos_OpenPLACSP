@@ -66,7 +66,7 @@ df_contratos <- df_contratos[!(df_contratos$Sistema_de_contratación %in% c("Est
                                                                            "Establecimiento del Sistema Dinámico de Adquisición")),]
 
 df_contratos <- df_contratos[!is.na(df_contratos$`Fecha_del_acuerdo_licitación/lote`),]
-df_contratos <-df_contratos[df_contratos$`Fecha_del_acuerdo_licitación/lote`>=as.POSIXct("2021-08-30"),]
+df_contratos <-df_contratos[df_contratos$`Fecha_del_acuerdo_licitación/lote`>=as.POSIXct("2021-09-05"),]
 
 df_contratos <- df_contratos[!is.na(df_contratos$`Importe_adjudicación_sin_impuestos_licitación/lote`),]
 
@@ -141,7 +141,7 @@ print(paste0(100*nrow(agg_esPyME)/length(unique(df_contratos$`Identificador_Adju
 #######Parte 2) Licitaciones Abiertas y Desiertas#######
 df_licitaciones <- dt_perfil_licitaciones[,-c(17,18,19,23,24,25,26)]
 df_licitaciones <- df_licitaciones[df_licitaciones$Estado=="En plazo",]
-df_licitaciones <-df_licitaciones[df_licitaciones$Primera_publicación>=as.POSIXct("2021-08-30"),]
+df_licitaciones <-df_licitaciones[df_licitaciones$Primera_publicación>=as.POSIXct("2021-09-05"),]
 # df_licitaciones <- df_licitaciones[!(df_licitaciones$Sistema_de_contratación %in% c("Establecimiento del Acuerdo Marco",
 #                                                                                     "Establecimiento del Sistema Dinámico de Adquisición")),]
 # desglose por tipo
@@ -162,9 +162,11 @@ write.table(x = agg_pie2,file = "./informeSemanal/outputs_varios/resumen_nuevasL
 print(nrow(df_licitaciones))
 print(sum(df_licitaciones$Presupuesto_base_sin_impuestos))
 
-print(summary(as.factor(dt_perfil_resultados$`Resultado_licitación/lote`)))
+
 
 df_desiertas <- dt_perfil_resultados[dt_perfil_resultados$`Resultado_licitación/lote`=="Desierto",]
+df_desiertas <-df_desiertas[df_desiertas$Fecha_actualización>=as.POSIXct("2021-09-05"),]
+print(summary(as.factor(df_desiertas$`Resultado_licitación/lote`)))
 # df_p_lic <- dt_perfil_licitaciones[,-c(17,18,19,23,24,25,26)]
 df_desiertas <- df_desiertas[,-c(2,3,4,7,8,19,21)]
 df_desiertas <- merge(x = df_p_lic, y = df_desiertas, by = "Identificador")
